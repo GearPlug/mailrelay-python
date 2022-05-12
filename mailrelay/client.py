@@ -7,43 +7,21 @@ import requests
 
 class Client(object):
     def __init__(self, api_key, domain):
-        self.headers = {
-            "x-auth-token": api_key,
-            "cache-control": "max-age=0, private, must-revalidate",
-            "content-type": "application/json; charset=utf-8",
-        }
+        self.api_key = api_key
         self.base_url = f"https://{domain}/api/v1/"
 
-    def __compose_endpoint(self, endpoint, *endpoints):
+    def _compose_endpoint(self, endpoint):
         url = self.base_url + endpoint + "/"
-        for endpoint in endpoints:
-            url += str(endpoint) + "/"
-        return url[:-1]
+        return url
 
-    def __compose_get_query(self, **kwargs):
-        """Compose the paramateres for the get payload.
-        For queriable parameters
-        """
-        params = {}
-        no_query = ["page", "unique", "include"]
-        for key, value in kwargs.items():
-            if value:
-                is_query = True
-                for keyword in no_query:
-                    if key in keyword:
-                        is_query = False
-                if is_query:
-                    params[f"q[{key}]"] = value
-                else:
-                    params[key] = kwargs[key]
-        return params
+    def get_campaigns(self, **kwargs):
+        req_dict = self.__compose_request("campaigns", **kwargs)
+        print(req_dict)
+        return self._get(**req_dict)
 
-    def __compose_request(self, endpoint, *endpoints, **kwargs):
-        """Create a request dictionary to pass to the request function."""
-        url = self.__compose_endpoint(endpoint, *endpoints)
-        params = self.__compose_get_query(**kwargs)
-        req_dict = dict(url=url, params=params, headers=self.headers)
-        return req_dict
+    def create_subscriber(self, data):
+        url = self._compose_endpoint("subscribers")
+        return self._post(url=url, data=data)
 
     def _get(self, url, **kwargs):
         return self._request("GET", url, **kwargs)
@@ -61,14 +39,14 @@ class Client(object):
         return self._request("DELETE", url, **kwargs)
 
     def _request(self, method, url, headers=None, **kwargs):
-        return self._parse(requests.request(method, url, headers=headers, **kwargs))
-
-    def get_campaigns(self, **kwargs):
-        params = locals()
-        params.pop("self")
-        req_dict = self.__compose_request("campaigns", **kwargs)
-        print(req_dict)
-        return self._get(**req_dict)
+        _headers = {
+            "X-AUTH-TOKEN": "{}".format(self.api_key),
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+        }
+        if headers:
+            _headers.update(headers)
+        return self._parse(requests.request(method, url, headers=_headers, **kwargs))
 
     def _parse(self, response):
 
@@ -137,5 +115,7 @@ if __name__ == "__main__":
     DOMAIN = ""
     client = Client(API_KEY, DOMAIN)
     # campaigns = client.get_sent_campaigns(sender_id_eq=2)
-    campaign = client.get_campaigns()
+    # campaign = client.get_campaigns()
+    d = "{\"status\":\"active\",\"email\":\"user@example.com\",\"name\":\"string\",\"address\":\"string\",\"city\":\"string\",\"state\":\"string\",\"country\":\"string\",\"birthday\":\"2022-05-12\",\"website\":\"string\",\"locale\":\"en\",\"time_zone\":\"Africa/Abidjan\",\"group_ids\":[1]}"
+    campaign = client.create_subscriber(d)
     print(campaign)
