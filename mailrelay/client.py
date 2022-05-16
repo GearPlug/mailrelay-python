@@ -1,27 +1,78 @@
 from typing import Optional
+from urllib import response
 from urllib.parse import urlencode
 import exceptions
-
+import json
 import requests
 
 
 class Client(object):
     def __init__(self, api_key, domain):
         self.api_key = api_key
-        self.base_url = f"https://{domain}/api/v1/"
+        self.base_url = f"https://{domain}/api/v1/"        
 
-    def _compose_endpoint(self, endpoint):
-        url = self.base_url + endpoint + "/"
+    def _compose_endpoint(self, endpoint, id=None):
+        if id:
+            url = self.base_url+endpoint+"/{id}".format(id=id)
+        else:
+            url = self.base_url+endpoint
         return url
 
-    def get_campaigns(self, **kwargs):
-        req_dict = self.__compose_request("campaigns", **kwargs)
-        print(req_dict)
-        return self._get(**req_dict)
+    def get_subscribers(self)-> list:
+        """Return Subscribers data
 
-    def create_subscriber(self, data):
+        Returns:
+            list: 
+            [
+                {
+                    "id": 1,
+                    "email": "juantest@gmail.com",
+                    "name": "juan",
+                    "score": None,
+                    "status": "active",
+                    "subscribed_at": None,
+                    "subscribed_with_acceptance": False,
+                    "subscribe_ip": None,
+                    "unsubscribed": False,
+                    "unsubscribed_at": None,
+                    "unsubscribe_ip": None,
+                    "unsubscribe_sent_email_id": None,
+                    "address": "",
+                    "city": "",
+                    "state": "",
+                    "country": "",
+                    "birthday": None,
+                    "website": "",
+                    "time_zone": "",
+                    "locale": "",
+                    "bounced": False,
+                    "reported_spam": False,
+                    "local_ban": False,
+                    "global_ban": False,
+                    "created_at": "2022-05-11T22:15:02.000Z",
+                    "updated_at": "2022-05-11T22:15:02.000Z",
+                    "custom_fields": {},
+                },
+            ]
+        """        
         url = self._compose_endpoint("subscribers")
-        return self._post(url=url, data=data)
+        return self._get(url=url)
+
+    def get_subscriber_by_id(self, id:int)-> dict:
+        """Get subscriber by id
+
+        Args:
+            id (int): _description_
+
+        Returns:
+            dict: _description_
+        """
+        url = self._compose_endpoint(endpoint="subscribers", id=id)    
+        return self._get(url=url)
+
+    def create_subscriber(self, data)-> response:
+        url = self._compose_endpoint("subscribers")
+        return self._post(url=url, json=data)
 
     def _get(self, url, **kwargs):
         return self._request("GET", url, **kwargs)
@@ -116,6 +167,23 @@ if __name__ == "__main__":
     client = Client(API_KEY, DOMAIN)
     # campaigns = client.get_sent_campaigns(sender_id_eq=2)
     # campaign = client.get_campaigns()
-    d = "{\"status\":\"active\",\"email\":\"user@example.com\",\"name\":\"string\",\"address\":\"string\",\"city\":\"string\",\"state\":\"string\",\"country\":\"string\",\"birthday\":\"2022-05-12\",\"website\":\"string\",\"locale\":\"en\",\"time_zone\":\"Africa/Abidjan\",\"group_ids\":[1]}"
+    d = {
+        "status": "active",
+        "email": "johanntest@example.com",
+        "name": "johann",
+        "address": "calle",
+        "city": "buga",
+        "state": "valle",
+        "country": "CO",
+        "birthday": "1970-01-01",
+        
+        "locale": "en",
+        "time_zone": "",
+        "group_ids": [1],
+    }
+    
+    print(d)
     campaign = client.create_subscriber(d)
+    #campaign = client.get_subscribers()
+    #campaign = client.get_subscriber_by_id(id=1)
     print(campaign)
