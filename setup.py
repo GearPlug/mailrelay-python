@@ -8,7 +8,7 @@ def read(fname):
 
 setup(
     name="mailrelay-python",
-    version="1.0.1",
+    version="1.0.2",
     description="Python developed library for mailrelay API",
     long_description=read("README.md"),
     long_description_content_type="text/markdown",

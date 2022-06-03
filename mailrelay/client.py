@@ -1,8 +1,5 @@
-from typing import Optional
+from mailrelay import exceptions
 from urllib import response
-from urllib.parse import urlencode
-import exceptions
-import json
 import requests
 
 
