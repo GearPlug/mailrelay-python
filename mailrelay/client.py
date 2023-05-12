@@ -6,7 +6,10 @@ import requests
 class Client(object):
     def __init__(self, api_key, domain):
         self.api_key = api_key
-        self.base_url = f"https://{domain}/api/v1/"
+        if domain.startswith("http://") or domain.startswith("https://"):
+            self.base_url = f"{domain}/api/v1/"
+        else:
+            self.base_url = f"https://{domain}/api/v1/"
 
     def _compose_endpoint(self, endpoint, id=None):
         if id:
