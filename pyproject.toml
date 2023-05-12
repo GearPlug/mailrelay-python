@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mailrelay-python"
-version = "1.0.3"
+version = "1.0.4"
 description = "API wrapper for MailRelay written in Python"
 authors = ["Miguel Ferrer <ingferrermiguel@gmail.com>"]
 license = "MIT"
